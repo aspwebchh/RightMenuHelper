@@ -1,0 +1,11 @@
+# Executables
+*.[eE][xX][eE]
+
+# .NET build output
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio local settings
+.vs/
+*.user
+*.suo
