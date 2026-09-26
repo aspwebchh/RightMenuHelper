@@ -1,0 +1,81 @@
+<Window x:Class="ShowVersionNum.FileLocksWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="查看并结束占用进程"
+        Width="720"
+        Height="420"
+        MinWidth="560"
+        MinHeight="300"
+        WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="文件" FontWeight="SemiBold" />
+        <TextBox Grid.Row="1"
+                 Margin="0,6,0,12"
+                 Padding="7"
+                 IsReadOnly="True"
+                 Text="{Binding FilePath, Mode=OneWay}"
+                 ToolTip="{Binding FilePath}" />
+
+        <DataGrid x:Name="ProcessGrid"
+                  Grid.Row="2"
+                  ItemsSource="{Binding Processes}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  IsReadOnly="True"
+                  HeadersVisibility="Column"
+                  SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="进程" Binding="{Binding Name}" Width="*" />
+                <DataGridTextColumn Header="PID" Binding="{Binding ProcessId}" Width="90" />
+                <DataGridTextColumn Header="类型" Binding="{Binding ApplicationTypeText}" Width="120" />
+                <DataGridTemplateColumn Header="操作" Width="110">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="强制结束"
+                                    Padding="8,3"
+                                    IsEnabled="{Binding CanTerminate}"
+                                    Tag="{Binding}"
+                                    Click="EndTaskButton_Click" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock x:Name="StatusTextBlock"
+                   Grid.Row="3"
+                   Margin="0,10,0,10"
+                   TextWrapping="Wrap"
+                   Text="正在检查文件占用情况……" />
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="RefreshButton"
+                    Content="刷新"
+                    Width="90"
+                    Height="32"
+                    Margin="0,0,8,0"
+                    Click="RefreshButton_Click" />
+            <Button x:Name="ElevateButton"
+                    Content="以管理员身份重试"
+                    Width="140"
+                    Height="32"
+                    Margin="0,0,8,0"
+                    Click="ElevateButton_Click" />
+            <Button Content="关闭"
+                    Width="90"
+                    Height="32"
+                    IsCancel="True"
+                    Click="CloseButton_Click" />
+        </StackPanel>
+    </Grid>
+</Window>

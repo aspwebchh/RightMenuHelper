@@ -9,17 +9,36 @@ namespace ShowVersionNum
     public partial class App : Application
     {
         private const string CopyFilePathArgument = "--copy-file-path";
+        private const string InspectLocksArgument = "--inspect-locks";
+        private const string RegisterContextMenusArgument = "--register-context-menus";
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            ShellContextMenuRegistrar.RegisterContextMenus();
+            if (IsCommand(e.Args, RegisterContextMenusArgument))
+            {
+                IReadOnlyList<string> errors = ShellContextMenuRegistrar.RegisterContextMenus(overwriteExisting: true);
+                Shutdown(errors.Count == 0 ? 0 : 1);
+                return;
+            }
 
-            if (IsCopyFilePathCommand(e.Args))
+            if (e.Args.Length == 0)
+            {
+                ShellContextMenuRegistrar.RegisterContextMenus(overwriteExisting: false);
+            }
+
+            if (IsCommand(e.Args, CopyFilePathArgument))
             {
                 int exitCode = CopyFilePath(e.Args.ElementAtOrDefault(1));
                 Shutdown(exitCode);
+                return;
+            }
+
+            if (IsCommand(e.Args, InspectLocksArgument))
+            {
+                FileLocksWindow locksWindow = new(e.Args.ElementAtOrDefault(1) ?? string.Empty);
+                locksWindow.Show();
                 return;
             }
 
@@ -28,10 +47,10 @@ namespace ShowVersionNum
             window.Show();
         }
 
-        private static bool IsCopyFilePathCommand(string[] args)
+        private static bool IsCommand(string[] args, string command)
         {
             return args.Length > 0
-                && args[0].Equals(CopyFilePathArgument, StringComparison.OrdinalIgnoreCase);
+                && args[0].Equals(command, StringComparison.OrdinalIgnoreCase);
         }
 
         private static int CopyFilePath(string? filePath)
