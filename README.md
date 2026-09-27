@@ -12,6 +12,8 @@ Windows 文件右键菜单工具，包含 ZIP 压缩包中 `version` 文件查�
 
 脚本将程序发布到当前用户的 `%LOCALAPPDATA%\Programs\RightContextMenuHelper`，并把三个右键菜单注册到该固定路径。Windows 11 中可在文件右键菜单的“显示更多选项”里找到它们。
 
+三个菜单分别使用 ZIP 版本、复制路径和解除文件占用的图标。图标源文件与多尺寸 ICO 位于 `Icons` 目录；修改 SVG 后，可用 `python Icons/generate.py` 重新生成 ICO（需安装 Pillow 和 resvg_py）。
+
 安装脚本会将已有菜单切换到新程序，并移除旧版文件占用菜单项。旧版安装文件夹会保留。
 
 ## 卸载右键菜单

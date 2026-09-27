@@ -17,26 +17,36 @@ if (-not (Test-Path -LiteralPath $installedExe -PathType Leaf)) {
     throw "发布后找不到程序：$installedExe"
 }
 
-$registration = Start-Process -FilePath $installedExe -ArgumentList '--register-context-menus' -Wait -PassThru -WindowStyle Hidden
-if ($registration.ExitCode -ne 0) {
-    throw "右键菜单注册失败，程序退出码：$($registration.ExitCode)"
-}
-
 $quotedExe = '"' + $installedExe + '"'
+$iconDirectory = Join-Path $installDirectory 'Icons'
 $menuCommands = @(
     @{
         Key = 'Software\Classes\SystemFileAssociations\.zip\shell\ShowVersionFileContent'
         Command = "$quotedExe `"%1`""
+        Icon = (Join-Path $iconDirectory 'zip-version.ico')
     },
     @{
         Key = 'Software\Classes\*\shell\CopyFilePath'
         Command = "$quotedExe --copy-file-path `"%1`""
+        Icon = (Join-Path $iconDirectory 'copy-file-path.ico')
     },
     @{
         Key = 'Software\Classes\*\shell\RightContextMenuHelper.InspectLocks'
         Command = "$quotedExe --inspect-locks `"%1`""
+        Icon = (Join-Path $iconDirectory 'inspect-locks.ico')
     }
 )
+
+foreach ($menu in $menuCommands) {
+    if (-not (Test-Path -LiteralPath $menu.Icon -PathType Leaf)) {
+        throw "发布后找不到菜单图标：$($menu.Icon)"
+    }
+}
+
+$registration = Start-Process -FilePath $installedExe -ArgumentList '--register-context-menus' -Wait -PassThru -WindowStyle Hidden
+if ($registration.ExitCode -ne 0) {
+    throw "右键菜单注册失败，程序退出码：$($registration.ExitCode)"
+}
 
 foreach ($menu in $menuCommands) {
     $commandKey = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey($menu.Key + '\command')
@@ -48,6 +58,17 @@ foreach ($menu in $menuCommands) {
     }
     finally {
         if ($null -ne $commandKey) { $commandKey.Dispose() }
+    }
+
+    $menuKey = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey($menu.Key)
+    try {
+        $actualIcon = if ($null -ne $menuKey) { [string]$menuKey.GetValue('Icon') } else { '' }
+        if ($actualIcon -cne $menu.Icon) {
+            throw "右键菜单图标验证失败：$($menu.Key)"
+        }
+    }
+    finally {
+        if ($null -ne $menuKey) { $menuKey.Dispose() }
     }
 }
 

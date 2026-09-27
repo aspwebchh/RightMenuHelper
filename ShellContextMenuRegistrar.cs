@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using System.IO;
 
 namespace RightContextMenuHelper;
 
@@ -28,6 +29,7 @@ internal static class ShellContextMenuRegistrar
             ZipMenuKeyPath,
             "显示 version 文件内容",
             $"\"{executablePath}\" \"%1\"",
+            "zip-version.ico",
             overwriteExisting,
             singleSelection: false,
             errors);
@@ -36,6 +38,7 @@ internal static class ShellContextMenuRegistrar
             CopyFilePathMenuKeyPath,
             "复制文件路径",
             $"\"{executablePath}\" --copy-file-path \"%1\"",
+            "copy-file-path.ico",
             overwriteExisting,
             singleSelection: false,
             errors);
@@ -44,6 +47,7 @@ internal static class ShellContextMenuRegistrar
             InspectLocksMenuKeyPath,
             "查看并结束占用进程",
             $"\"{executablePath}\" --inspect-locks \"%1\"",
+            "inspect-locks.ico",
             overwriteExisting,
             singleSelection: true,
             errors);
@@ -60,6 +64,7 @@ internal static class ShellContextMenuRegistrar
         string menuKeyPath,
         string displayName,
         string command,
+        string iconFileName,
         bool overwriteExisting,
         bool singleSelection,
         List<string> errors)
@@ -75,9 +80,16 @@ internal static class ShellContextMenuRegistrar
                 }
             }
 
+            string iconPath = Path.Combine(AppContext.BaseDirectory, "Icons", iconFileName);
+            if (!File.Exists(iconPath))
+            {
+                throw new FileNotFoundException("找不到菜单图标文件。", iconPath);
+            }
+
             using RegistryKey menuKey = Registry.CurrentUser.CreateSubKey(menuKeyPath)
                 ?? throw new InvalidOperationException("无法创建菜单注册表项。");
             menuKey.SetValue(null, displayName);
+            menuKey.SetValue("Icon", iconPath);
             if (singleSelection)
             {
                 menuKey.SetValue("MultiSelectModel", "Single");
