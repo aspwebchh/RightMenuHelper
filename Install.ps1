@@ -4,9 +4,9 @@ if ([string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) {
     throw '无法确定当前用户的 LocalAppData 目录。'
 }
 
-$projectPath = Join-Path $PSScriptRoot 'ShowVersionNum.csproj'
-$installDirectory = Join-Path $env:LOCALAPPDATA 'Programs\ShowVersionNum'
-$installedExe = Join-Path $installDirectory 'ShowVersionNum.exe'
+$projectPath = Join-Path $PSScriptRoot 'RightContextMenuHelper.csproj'
+$installDirectory = Join-Path $env:LOCALAPPDATA 'Programs\RightContextMenuHelper'
+$installedExe = Join-Path $installDirectory 'RightContextMenuHelper.exe'
 
 dotnet publish $projectPath -c Release -r win-x64 --self-contained false -o $installDirectory -v:q
 if ($LASTEXITCODE -ne 0) {
@@ -33,7 +33,7 @@ $menuCommands = @(
         Command = "$quotedExe --copy-file-path `"%1`""
     },
     @{
-        Key = 'Software\Classes\*\shell\ShowVersionNum.InspectLocks'
+        Key = 'Software\Classes\*\shell\RightContextMenuHelper.InspectLocks'
         Command = "$quotedExe --inspect-locks `"%1`""
     }
 )
@@ -51,7 +51,7 @@ foreach ($menu in $menuCommands) {
     }
 }
 
-$lockMenuKey = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Software\Classes\*\shell\ShowVersionNum.InspectLocks')
+$lockMenuKey = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Software\Classes\*\shell\RightContextMenuHelper.InspectLocks')
 try {
     if ($null -eq $lockMenuKey -or $lockMenuKey.GetValue('MultiSelectModel') -cne 'Single') {
         throw '文件占用菜单的单选设置验证失败。'
@@ -59,6 +59,16 @@ try {
 }
 finally {
     if ($null -ne $lockMenuKey) { $lockMenuKey.Dispose() }
+}
+
+$legacyLockMenuKey = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Software\Classes\*\shell\ShowVersionNum.InspectLocks')
+try {
+    if ($null -ne $legacyLockMenuKey) {
+        throw '旧版文件占用菜单未清理。'
+    }
+}
+finally {
+    if ($null -ne $legacyLockMenuKey) { $legacyLockMenuKey.Dispose() }
 }
 
 Write-Output "已安装到：$installedExe"

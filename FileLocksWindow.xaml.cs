@@ -5,7 +5,7 @@ using System.Security.Principal;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace ShowVersionNum;
+namespace RightContextMenuHelper;
 
 public partial class FileLocksWindow : Window
 {

@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Input;
 
-namespace ShowVersionNum
+namespace RightContextMenuHelper
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

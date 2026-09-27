@@ -1,22 +1,21 @@
 using Microsoft.Win32;
 
-namespace ShowVersionNum;
+namespace RightContextMenuHelper;
 
 internal static class ShellContextMenuRegistrar
 {
     private const string ZipMenuKeyPath = @"Software\Classes\SystemFileAssociations\.zip\shell\ShowVersionFileContent";
     private const string CopyFilePathMenuKeyPath = @"Software\Classes\*\shell\CopyFilePath";
-    private const string InspectLocksMenuKeyPath = @"Software\Classes\*\shell\ShowVersionNum.InspectLocks";
+    private const string InspectLocksMenuKeyPath = @"Software\Classes\*\shell\RightContextMenuHelper.InspectLocks";
     private static readonly string[] LegacyMenuKeyPaths =
     [
         @"Software\Classes\SystemFileAssociations\.zip\shell\ShowVersionNum",
         @"Software\Classes\SystemFileAssociations\.zip\shell\显示版本号",
+        @"Software\Classes\*\shell\ShowVersionNum.InspectLocks",
     ];
 
     public static IReadOnlyList<string> RegisterContextMenus(bool overwriteExisting)
     {
-        DeleteLegacyMenuKeys();
-
         List<string> errors = [];
         string? executablePath = Environment.ProcessPath;
         if (string.IsNullOrWhiteSpace(executablePath))
@@ -48,6 +47,11 @@ internal static class ShellContextMenuRegistrar
             overwriteExisting,
             singleSelection: true,
             errors);
+
+        if (errors.Count == 0)
+        {
+            DeleteLegacyMenuKeys(errors);
+        }
 
         return errors;
     }
@@ -89,7 +93,7 @@ internal static class ShellContextMenuRegistrar
         }
     }
 
-    private static void DeleteLegacyMenuKeys()
+    private static void DeleteLegacyMenuKeys(List<string> errors)
     {
         foreach (string legacyMenuKeyPath in LegacyMenuKeyPaths)
         {
@@ -97,9 +101,9 @@ internal static class ShellContextMenuRegistrar
             {
                 Registry.CurrentUser.DeleteSubKeyTree(legacyMenuKeyPath, throwOnMissingSubKey: false);
             }
-            catch
+            catch (Exception ex)
             {
-                // Leave cleanup best-effort so the new menu can still be registered.
+                errors.Add($"清理旧版右键菜单失败（{legacyMenuKeyPath}）：{ex.Message}");
             }
         }
     }

@@ -1,4 +1,4 @@
-# ShowVersionNum
+# RightContextMenuHelper
 
 Windows 文件右键菜单工具，包含 ZIP 压缩包中 `version` 文件查看、复制文件路径，以及查看并结束占用文件的进程。
 
@@ -10,7 +10,13 @@ Windows 文件右键菜单工具，包含 ZIP 压缩包中 `version` 文件查�
 .\Install.ps1
 ```
 
-脚本将程序发布到当前用户的 `%LOCALAPPDATA%\Programs\ShowVersionNum`，并把三个右键菜单注册到该固定路径。Windows 11 中可在文件右键菜单的“显示更多选项”里找到它们。
+脚本将程序发布到当前用户的 `%LOCALAPPDATA%\Programs\RightContextMenuHelper`，并把三个右键菜单注册到该固定路径。Windows 11 中可在文件右键菜单的“显示更多选项”里找到它们。
+
+安装脚本会将已有菜单切换到新程序，并移除旧版文件占用菜单项。旧版安装文件夹会保留。
+
+## 卸载右键菜单
+
+在 PowerShell 中运行 .\uninstall.ps1，可移除本项目注册的右键菜单。脚本会保留安装目录中的程序文件；需要恢复菜单时重新运行 .\Install.ps1。可先运行 .\uninstall.ps1 -WhatIf 预览将移除的菜单项。
 
 ## 文件占用功能
 

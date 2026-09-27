@@ -1,7 +1,7 @@
 using System.IO;
 using System.Windows;
 
-namespace ShowVersionNum
+namespace RightContextMenuHelper
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -21,11 +21,6 @@ namespace ShowVersionNum
                 IReadOnlyList<string> errors = ShellContextMenuRegistrar.RegisterContextMenus(overwriteExisting: true);
                 Shutdown(errors.Count == 0 ? 0 : 1);
                 return;
-            }
-
-            if (e.Args.Length == 0)
-            {
-                ShellContextMenuRegistrar.RegisterContextMenus(overwriteExisting: false);
             }
 
             if (IsCommand(e.Args, CopyFilePathArgument))

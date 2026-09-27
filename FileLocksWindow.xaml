@@ -1,4 +1,4 @@
-<Window x:Class="ShowVersionNum.FileLocksWindow"
+<Window x:Class="RightContextMenuHelper.FileLocksWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="查看并结束占用进程"
